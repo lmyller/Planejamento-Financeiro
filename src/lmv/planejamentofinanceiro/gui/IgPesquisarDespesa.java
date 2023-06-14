@@ -1,18 +1,17 @@
 package lmv.planejamentofinanceiro.gui;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JRadioButton;
-import java.awt.event.KeyEvent;
-import javax.swing.JButton;
 import java.awt.Color;
-import java.awt.Dialog.ModalExclusionType;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
 
 public class IgPesquisarDespesa extends JFrame {
 
@@ -34,11 +33,11 @@ public class IgPesquisarDespesa extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[82px][54px][2px][80px][2px][103px][]", "[19px][21px][][]"));
+		contentPane.setLayout(new MigLayout("", "[80px][48px][8px][96px][2px][94px][4px][63px]", "[19px][21px][21px]"));
 		
 		JLabel itemLabel = new JLabel("Item de despesa:");
 		itemLabel.setDisplayedMnemonic(KeyEvent.VK_I);
-		contentPane.add(itemLabel, "cell 0 0,alignx right,aligny center");
+		contentPane.add(itemLabel, "cell 0 0,alignx left,aligny center");
 		
 		itemTextField = new JTextField();
 		itemLabel.setLabelFor(itemTextField);
@@ -62,15 +61,15 @@ public class IgPesquisarDespesa extends JFrame {
 		JRadioButton valorRadioButton = new JRadioButton("Valor");
 		valorRadioButton.setBackground(new Color(255, 255, 255));
 		valorRadioButton.setMnemonic(KeyEvent.VK_V);
-		contentPane.add(valorRadioButton, "cell 5 1,growx,aligny top");
+		contentPane.add(valorRadioButton, "cell 5 1 3 1,growx,aligny top");
 		
 		JButton proximaDespesaButton = new JButton("Próxima despesa");
 		proximaDespesaButton.setMnemonic(KeyEvent.VK_P);
-		contentPane.add(proximaDespesaButton, "cell 5 3");
+		contentPane.add(proximaDespesaButton, "cell 3 2 3 1,alignx right,aligny top");
 		
 		JButton fecharButton = new JButton("Fechar");
 		fecharButton.setMnemonic(KeyEvent.VK_F);
-		contentPane.add(fecharButton, "cell 6 3");
+		contentPane.add(fecharButton, "cell 7 2,alignx left,aligny top");
 		
 		setVisible(true);
 	}

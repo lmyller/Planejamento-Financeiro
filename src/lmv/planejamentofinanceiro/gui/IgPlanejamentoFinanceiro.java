@@ -78,7 +78,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[147px,grow,center][147px,center][147px,center][147px,center][147px,center][147px,center][147px,center][147px,center]", "[23px][21px][348px,grow][grow]"));
+		contentPane.setLayout(new MigLayout("", "[132px][4px][132px][4px][132px][140px][132px][4px][132px][66px][206px]", "[19px][17px][343px][38px]"));
 		
 		JLabel receitaLabel = new JLabel("Receitas");
 		receitaLabel.setForeground(new Color(0, 0, 255));
@@ -88,13 +88,13 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		JLabel despesasLabel = new JLabel("Despesas");
 		despesasLabel.setForeground(new Color(0, 0, 255));
 		despesasLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(despesasLabel, "cell 1 0,alignx center,aligny center");
+		contentPane.add(despesasLabel, "cell 2 0,alignx center,aligny center");
 		
 		JLabel saldoLabel = new JLabel("Saldo");
 		saldoLabel.setForeground(new Color(0, 0, 255));
 		saldoLabel.setBackground(new Color(0, 0, 0));
 		saldoLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(saldoLabel, "cell 2 0,alignx center,aligny center");
+		contentPane.add(saldoLabel, "cell 4 0,alignx center,aligny center");
 		
 		receitaTextField = new JTextField();
 		receitaTextField.setHorizontalAlignment(SwingConstants.CENTER);
@@ -111,13 +111,13 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		despesaTextField.setFont(new Font("Tahoma", Font.BOLD, 14));
 		despesaTextField.setEditable(false);
 		despesaTextField.setBorder(null);
-		contentPane.add(despesaTextField, "cell 1 1,growx,aligny top");
+		contentPane.add(despesaTextField, "cell 2 1,growx,aligny top");
 		despesaTextField.setColumns(10);
 		
 		JLabel totalPagoLabel = new JLabel("Total Pago");
 		totalPagoLabel.setForeground(new Color(0, 0, 255));
 		totalPagoLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(totalPagoLabel, "cell 4 0,alignx center,aligny center");
+		contentPane.add(totalPagoLabel, "cell 6 0,alignx center,aligny center");
 		
 		saldoTextField = new JTextField();
 		saldoTextField.setBorder(null);
@@ -125,7 +125,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		saldoTextField.setText("R$ 0");
 		saldoTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		saldoTextField.setFont(new Font("Tahoma", Font.BOLD, 14));
-		contentPane.add(saldoTextField, "cell 2 1,growx,aligny top");
+		contentPane.add(saldoTextField, "cell 4 1,growx,aligny top");
 		saldoTextField.setColumns(10);
 		
 		totalPagoTextField = new JTextField();
@@ -134,13 +134,13 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		totalPagoTextField.setText("R$ 0");
 		totalPagoTextField.setFont(new Font("Tahoma", Font.BOLD, 14));
 		totalPagoTextField.setEditable(false);
-		contentPane.add(totalPagoTextField, "cell 4 1,growx,aligny top");
+		contentPane.add(totalPagoTextField, "cell 6 1,growx,aligny top");
 		totalPagoTextField.setColumns(10);
 		
 		JLabel totalPagarLabel = new JLabel("Total A Pagar");
 		totalPagarLabel.setForeground(new Color(0, 0, 255));
 		totalPagarLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(totalPagarLabel, "cell 5 0,alignx center,aligny center");
+		contentPane.add(totalPagarLabel, "cell 8 0,alignx center,aligny center");
 		
 		totalPagarTextField = new JTextField();
 		totalPagarTextField.setHorizontalAlignment(SwingConstants.CENTER);
@@ -148,13 +148,13 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		totalPagarTextField.setFont(new Font("Tahoma", Font.BOLD, 14));
 		totalPagarTextField.setEditable(false);
 		totalPagarTextField.setBorder(null);
-		contentPane.add(totalPagarTextField, "cell 5 1,growx,aligny bottom");
+		contentPane.add(totalPagarTextField, "cell 8 1,growx,aligny bottom");
 		totalPagarTextField.setColumns(10);
 		
 		JLabel investimentoLabel = new JLabel("Investimentos");
 		investimentoLabel.setForeground(new Color(0, 0, 255));
 		investimentoLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(investimentoLabel, "cell 7 0,alignx center,aligny center");
+		contentPane.add(investimentoLabel, "cell 10 0,alignx center,aligny center");
 		
 		investimentoTextField = new JTextField();
 		investimentoTextField.setEditable(false);
@@ -162,13 +162,13 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		investimentoTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		investimentoTextField.setText("R$ 0");
 		investimentoTextField.setFont(new Font("Tahoma", Font.BOLD, 14));
-		contentPane.add(investimentoTextField, "cell 7 1,growx,aligny top");
+		contentPane.add(investimentoTextField, "cell 10 1,growx,aligny top");
 		investimentoTextField.setColumns(10);
 		
 		orcamentoPanel = new JPanel();
 		orcamentoPanel.setBorder(new TitledBorder(null, "Or\u00E7amento", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		orcamentoPanel.setBackground(new Color(255, 255, 255));
-		contentPane.add(orcamentoPanel, "cell 0 2 8 1,grow");
+		contentPane.add(orcamentoPanel, "cell 0 2 11 1,grow");
 		orcamentoPanel.setLayout(null);
 		
 		mesLabel = new JLabel("Mês:");
@@ -252,7 +252,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(255, 255, 255));
-		contentPane.add(panel, "cell 0 3 8 1,alignx right,growy");
+		contentPane.add(panel, "cell 10 3,alignx right,growy");
 		
 		importarButton = new JButton("Importar...");
 		panel.add(importarButton);
@@ -260,6 +260,11 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		importarButton.setBackground(new Color(255, 255, 255));
 		
 		investimentosButton = new JButton("Investimentos...");
+		investimentosButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new IgInvestimento();
+			}
+		});
 		panel.add(investimentosButton);
 		investimentosButton.setMnemonic(KeyEvent.VK_I);
 		investimentosButton.setBackground(new Color(255, 255, 255));
