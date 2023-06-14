@@ -22,8 +22,10 @@ import javax.swing.table.DefaultTableModel;
 
 import lmv.planejamentofinanceiro.enumeracao.Mes;
 import net.miginfocom.swing.MigLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
-public class PlanejamentoFinanceiro extends JFrame {
+public class IgPlanejamentoFinanceiro extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField receitaTextField;
@@ -52,7 +54,7 @@ public class PlanejamentoFinanceiro extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					PlanejamentoFinanceiro frame = new PlanejamentoFinanceiro();
+					IgPlanejamentoFinanceiro frame = new IgPlanejamentoFinanceiro();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -64,7 +66,7 @@ public class PlanejamentoFinanceiro extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public PlanejamentoFinanceiro() {
+	public IgPlanejamentoFinanceiro() {
 		alterarLookAndFell("Nimbus");
 		setResizable(false);
 		setFont(new Font("Dialog", Font.PLAIN, 14));
@@ -177,12 +179,15 @@ public class PlanejamentoFinanceiro extends JFrame {
 		orcamentoScrollPane = new JScrollPane();
 		orcamentoScrollPane.setBounds(21, 59, 544, 224);
 		orcamentoScrollPane.setBackground(new Color(255, 255, 255));
+		orcamentoScrollPane.getViewport().setBackground(new Color(255, 255, 255));
 		orcamentoPanel.add(orcamentoScrollPane);
 		
 		orcamentoTable = new JTable();
 		orcamentoScrollPane.setViewportView(orcamentoTable);
 		orcamentoTable.setShowVerticalLines(true);
 		orcamentoTable.setShowHorizontalLines(true);
+		orcamentoTable.getTableHeader().setBackground(new Color(255, 255, 255));
+		orcamentoTable.setBackground(new Color(255, 255, 255));
 		orcamentoTable.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
@@ -203,9 +208,13 @@ public class PlanejamentoFinanceiro extends JFrame {
 		orcamentoTable.getColumnModel().getColumn(3).setResizable(false);
 		orcamentoTable.getColumnModel().getColumn(4).setResizable(false);
 		orcamentoTable.getColumnModel().getColumn(5).setResizable(false);
-		orcamentoTable.setBackground(new Color(255, 255, 255));
 		
 		pesquisarDespesaButton = new JButton("Pesquisar Despesa...");
+		pesquisarDespesaButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new IgPesquisarDespesa();
+			}
+		});
 		pesquisarDespesaButton.setBounds(21, 295, 141, 28);
 		pesquisarDespesaButton.setMnemonic(KeyEvent.VK_P);
 		pesquisarDespesaButton.setBackground(new Color(255, 255, 255));
@@ -256,7 +265,7 @@ public class PlanejamentoFinanceiro extends JFrame {
 		investimentosButton.setBackground(new Color(255, 255, 255));
 	}
 
-	private void alterarLookAndFell(String lookAndFeel) {
+	protected static void alterarLookAndFell(String lookAndFeel) {
 		for (var look : UIManager.getInstalledLookAndFeels()) {
 			if (look.getName().equalsIgnoreCase(lookAndFeel)) {
 				try {
