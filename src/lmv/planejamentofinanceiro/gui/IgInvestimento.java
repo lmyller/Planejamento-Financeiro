@@ -2,10 +2,14 @@ package lmv.planejamentofinanceiro.gui;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class IgInvestimento extends JFrame {
+public class IgInvestimento extends JDialog {
 
 	private JPanel contentPane;
 	private JTextField rendimentoBrutoTextField;
@@ -34,12 +38,17 @@ public class IgInvestimento extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public IgInvestimento() {
-		IgPlanejamentoFinanceiro.alterarLookAndFell("Nimbus");
+	public IgInvestimento(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				fecharJanela(igPlanejamentoFinanceiro);
+			}
+		});
+		
 		setBackground(new Color(255, 255, 255));
 		setTitle("Planejamento Financeiro - Investimentos");
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1129, 400);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
@@ -105,6 +114,8 @@ public class IgInvestimento extends JFrame {
 		investimentosPanel.add(investimentoScrollPane, "cell 0 0,grow");
 		
 		investimentoTable = new JTable();
+		investimentoTable.setShowVerticalLines(true);
+		investimentoTable.setShowHorizontalLines(true);
 		investimentoTable.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null, null, null, null, null, null, null},
@@ -155,10 +166,20 @@ public class IgInvestimento extends JFrame {
 		contentPane.add(graficoColunasButton, "cell 8 3,alignx left,aligny top");
 		
 		fecharButton = new JButton("Fechar");
+		fecharButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fecharJanela(igPlanejamentoFinanceiro);
+			}
+		});
 		fecharButton.setBackground(new Color(255, 255, 255));
 		fecharButton.setMnemonic(KeyEvent.VK_F);
 		contentPane.add(fecharButton, "cell 10 3,alignx left,aligny top");
 		
 		setVisible(true);
+	}
+	
+	private void fecharJanela(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro) {
+		this.dispose();
+		igPlanejamentoFinanceiro.setVisible(true);
 	}
 }

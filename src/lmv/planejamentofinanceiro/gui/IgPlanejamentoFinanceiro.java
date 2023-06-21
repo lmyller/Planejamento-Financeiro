@@ -1,13 +1,21 @@
 package lmv.planejamentofinanceiro.gui;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,15 +26,23 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
 import lmv.planejamentofinanceiro.enumeracao.Mes;
+import lmv.planejamentofinanceiro.lista.InvestimentoLista;
+import lmv.planejamentofinanceiro.lista.OrcamentoLista;
+import mos.es.InputOutput;
 import net.miginfocom.swing.MigLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class IgPlanejamentoFinanceiro extends JFrame {
-
+	
+	private final String ERRO_ABRIR_ARQUIVO = "Erro ao abrir arquivo",
+									ARQUIVO_NAO_SELECIONADO = "Arquivo não selecionado";
+	
+	private IgPlanejamentoFinanceiro igPlanejamentoFinanceiro;
+	private IgPesquisarDespesa igPesquisarDespesa;
 	private JPanel contentPane;
 	private JTextField receitaTextField;
 	private JTextField despesaTextField;
@@ -48,26 +64,17 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 	private JScrollPane orcamentoScrollPane;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					IgPlanejamentoFinanceiro frame = new IgPlanejamentoFinanceiro();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
 	 * Create the frame.
 	 */
-	public IgPlanejamentoFinanceiro() {
-		alterarLookAndFell("Nimbus");
+	public IgPlanejamentoFinanceiro(OrcamentoLista orcamentoLista, InvestimentoLista investimentoLista) {
+		this.igPlanejamentoFinanceiro = this;
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
+		
 		setResizable(false);
 		setFont(new Font("Dialog", Font.PLAIN, 14));
 		setTitle("Planejamento Financeiro");
@@ -184,10 +191,10 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		
 		orcamentoTable = new JTable();
 		orcamentoScrollPane.setViewportView(orcamentoTable);
-		orcamentoTable.setShowVerticalLines(true);
-		orcamentoTable.setShowHorizontalLines(true);
 		orcamentoTable.getTableHeader().setBackground(new Color(255, 255, 255));
 		orcamentoTable.setBackground(new Color(255, 255, 255));
+		orcamentoTable.setShowVerticalLines(true);
+		orcamentoTable.setShowHorizontalLines(true);
 		orcamentoTable.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
@@ -212,7 +219,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		pesquisarDespesaButton = new JButton("Pesquisar Despesa...");
 		pesquisarDespesaButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new IgPesquisarDespesa();
+				igPesquisarDespesa = igPesquisarDespesa == null ? new IgPesquisarDespesa() : igPesquisarDespesa;;
 			}
 		});
 		pesquisarDespesaButton.setBounds(21, 295, 141, 28);
@@ -255,6 +262,17 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		contentPane.add(panel, "cell 10 3,alignx right,growy");
 		
 		importarButton = new JButton("Importar...");
+		importarButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					importarArquivos(investimentoLista, orcamentoLista);
+				} catch (IOException iOExcepion) {
+					InputOutput.showError(ERRO_ABRIR_ARQUIVO, PlanejamentoFinanceiro.TITULO);
+				} catch (NullPointerException nullPointerException) {
+					InputOutput.showError(ARQUIVO_NAO_SELECIONADO, PlanejamentoFinanceiro.TITULO);
+				}
+			}
+		});
 		panel.add(importarButton);
 		importarButton.setMnemonic(KeyEvent.VK_O);
 		importarButton.setBackground(new Color(255, 255, 255));
@@ -262,23 +280,66 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		investimentosButton = new JButton("Investimentos...");
 		investimentosButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new IgInvestimento();
+				setVisible(false);
+				new IgInvestimento(igPlanejamentoFinanceiro);
 			}
 		});
 		panel.add(investimentosButton);
 		investimentosButton.setMnemonic(KeyEvent.VK_I);
 		investimentosButton.setBackground(new Color(255, 255, 255));
+		
+		setVisible(true);
 	}
 
-	protected static void alterarLookAndFell(String lookAndFeel) {
-		for (var look : UIManager.getInstalledLookAndFeels()) {
-			if (look.getName().equalsIgnoreCase(lookAndFeel)) {
-				try {
-					UIManager.setLookAndFeel(look.getClassName());
-				} catch (Exception e){
-					
-				}
-			}
-		}		
+	private void importarArquivos(InvestimentoLista investimentoLista, OrcamentoLista orcamentoLista) throws IOException, NullPointerException {
+		File[] files = lerNomeArquivo(); 
+		
+		List<String> nomeArquivo = new ArrayList<>();
+		
+		try {
+			for (var file : files)
+				nomeArquivo.add(file.getCanonicalPath());
+			
+			lerArquivos(investimentoLista, orcamentoLista);
+				
+		} catch (IOException iOException) {
+			throw new IOException();
+		} catch (NullPointerException nullPointerException) {
+			throw new NullPointerException();
+		}
+	}
+
+	private void lerArquivos(InvestimentoLista investimentoLista, OrcamentoLista orcamentoLista) {
+		
+	}
+
+	private File[] lerNomeArquivo() {
+		JFileChooser jFileChooser = criarFileChooser();
+		
+		int opcao = jFileChooser.showOpenDialog(this);
+		
+		try {
+			return opcao == JFileChooser.APPROVE_OPTION ? jFileChooser.getSelectedFiles() : null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private JFileChooser criarFileChooser() {
+	final String DIRETORIO_ATUAL = ".",
+					   ARQUIVO_CSV = "Arquivo CSV (*csv)",
+					   EXTENSAO_CSV = "csv";
+		
+		JFileChooser jFileChooser = new JFileChooser();
+		
+		jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		
+		jFileChooser.setCurrentDirectory(new File(DIRETORIO_ATUAL));
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(ARQUIVO_CSV, EXTENSAO_CSV);
+		
+		jFileChooser.setFileFilter(filter);
+		
+		return jFileChooser;
 	}
 }

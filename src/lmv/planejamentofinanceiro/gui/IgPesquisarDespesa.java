@@ -2,9 +2,11 @@ package lmv.planejamentofinanceiro.gui;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -13,7 +15,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 
-public class IgPesquisarDespesa extends JFrame {
+public class IgPesquisarDespesa extends JDialog {
 
 	private JPanel contentPane;
 	private JTextField itemTextField;
@@ -22,11 +24,15 @@ public class IgPesquisarDespesa extends JFrame {
 	 * Create the frame.
 	 */
 	public IgPesquisarDespesa() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				dispose();
+			}
+		});
 		setBackground(new Color(255, 255, 255));
 		setResizable(false);
-		IgPlanejamentoFinanceiro.alterarLookAndFell("Nimbus");
 		setTitle("Pesquisar Despesa");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 437, 155);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
