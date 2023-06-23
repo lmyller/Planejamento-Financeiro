@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -20,10 +22,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
+import lmv.planejamentofinanceiro.lista.InvestimentoLista;
 import net.miginfocom.swing.MigLayout;
 
 public class IgInvestimento extends JDialog {
 
+	DefaultTableModel defaultTableModelInvestimento;
 	private JPanel contentPane;
 	private JTextField rendimentoBrutoTextField;
 	private JTextField totalAcumuladoTextField;
@@ -38,7 +43,11 @@ public class IgInvestimento extends JDialog {
 	/**
 	 * Create the frame.
 	 */
-	public IgInvestimento(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro) {
+	public IgInvestimento(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro, InvestimentoLista investimentoLista) {
+		String[] colunas = new String[] {
+				"Objetivo", "Estrat\u00E9gia", "Nome", "Valor Investido", "Posi\u00E7\u00E3o", "Rendimento Bruto", "Rentabilidade", "Vencimento"
+			};
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -116,35 +125,8 @@ public class IgInvestimento extends JDialog {
 		investimentoTable = new JTable();
 		investimentoTable.setShowVerticalLines(true);
 		investimentoTable.setShowHorizontalLines(true);
-		investimentoTable.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-				{null, null, null, null, null, null, null, null},
-			},
-			new String[] {
-				"Objetivo", "Estrat\u00E9gia", "Nome", "Valor Investido", "Posi\u00E7\u00E3o", "Rendimento Bruto", "Rentabilidade", "Vencimento"
-			}
-		) {
-			Class[] columnTypes = new Class[] {
-				String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class
-			};
-			public Class getColumnClass(int columnIndex) {
-				return columnTypes[columnIndex];
-			}
-		});
+		defaultTableModelInvestimento = new DefaultTableModel(colunas, 0);
+		investimentoTable.setModel(defaultTableModelInvestimento);
 		investimentoTable.getColumnModel().getColumn(0).setResizable(false);
 		investimentoTable.getColumnModel().getColumn(1).setResizable(false);
 		investimentoTable.getColumnModel().getColumn(2).setResizable(false);
@@ -175,11 +157,70 @@ public class IgInvestimento extends JDialog {
 		fecharButton.setMnemonic(KeyEvent.VK_F);
 		contentPane.add(fecharButton, "cell 10 3,alignx left,aligny top");
 		
+		if (investimentoLista.tamanhoLista() > 0) {
+			preencherTabela(investimentoLista);
+			totalValorInvestido(investimentoLista);
+			totalAcumulado(investimentoLista);
+			rendimentoBruto(investimentoLista);
+		}
+		
 		setVisible(true);
 	}
 	
+	private void preencherTabela(InvestimentoLista investimentoLista) {
+		for (var investimento : investimentoLista)
+			defaultTableModelInvestimento.addRow(investimento.toList());
+	}
+
 	private void fecharJanela(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro) {
 		this.dispose();
 		igPlanejamentoFinanceiro.setVisible(true);
+	}
+	
+	
+	
+	private void totalValorInvestido(InvestimentoLista investimentoLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		totalInvestidoTextField.setText(formatPreco.format(calculaTotalInvestido(investimentoLista)));
+	}
+
+	private Double calculaTotalInvestido(InvestimentoLista investimentoLista) {
+		Double totalInvestido = 0D;
+		
+		for (var investimento : investimentoLista)
+			totalInvestido += investimento.getValorInvestido();
+		
+		return totalInvestido;
+	}
+	
+	private void totalAcumulado(InvestimentoLista investimentoLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		totalAcumuladoTextField.setText(formatPreco.format(calculaTotalAcumulado(investimentoLista)));
+	}
+
+	private Double calculaTotalAcumulado(InvestimentoLista investimentoLista) {
+		Double totalAcumulado = 0D;
+		
+		for (var investimento : investimentoLista)
+			totalAcumulado += investimento.getPosicao();
+		
+		return totalAcumulado;
+	}
+	
+	private void rendimentoBruto(InvestimentoLista investimentoLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		rendimentoBrutoTextField.setText(formatPreco.format(calculaRendimentoBruto(investimentoLista)));
+	}
+	
+	private Double calculaRendimentoBruto(InvestimentoLista investimentoLista) {
+		Double totalRendimento = 0D;
+		
+		for (var investimento : investimentoLista)
+			totalRendimento += investimento.getRendimentoBruto();
+		
+		return totalRendimento;
 	}
 }

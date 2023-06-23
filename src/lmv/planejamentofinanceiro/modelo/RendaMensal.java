@@ -2,12 +2,12 @@ package lmv.planejamentofinanceiro.modelo;
 
 import java.time.LocalDate;
 
-public class RendaMensal{
+public class RendaMensal extends Renda{
 	private LocalDate data;
 	private Float valor;
-	private Renda renda;
 	
-	public RendaMensal(LocalDate data, Float valor, Renda renda) {
+	public RendaMensal(String descricao, LocalDate data, Float valor) {
+		super(descricao);
 		this.data = data;
 		this.valor = valor;
 	}
@@ -26,13 +26,5 @@ public class RendaMensal{
 
 	public void setValor(Float valor) {
 		this.valor = valor;
-	}
-
-	public Renda getRenda() {
-		return renda;
-	}
-
-	public void setRenda(Renda renda) {
-		this.renda = renda;
 	}
 }

@@ -1,13 +1,14 @@
 package lmv.planejamentofinanceiro.lista;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import lmv.planejamentofinanceiro.enumeracao.TipoDadoPesquisaInvestimento;
 import lmv.planejamentofinanceiro.interfaces.DadosLista;
 import lmv.planejamentofinanceiro.modelo.Investimento;
 
-public class InvestimentoLista implements DadosLista<Investimento, TipoDadoPesquisaInvestimento> {
+public class InvestimentoLista implements DadosLista<Investimento>, Iterable<Investimento> {
 
 	private List<Investimento> investimentos;
 	
@@ -28,12 +29,6 @@ public class InvestimentoLista implements DadosLista<Investimento, TipoDadoPesqu
 		return false;
 	}
 	
-	@Override
-	public int pesquisar(String string, TipoDadoPesquisaInvestimento tipoDado) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	@Override
 	public int pesquisar(int codigo) {
 		for (int indice = 0; indice < tamanhoLista(); indice++)
@@ -63,5 +58,18 @@ public class InvestimentoLista implements DadosLista<Investimento, TipoDadoPesqu
 	@Override
 	public int tamanhoLista() {
 		return investimentos.size();
+	}
+
+	@Override
+	public Iterator<Investimento> iterator() {
+		return investimentos.iterator();
+	}
+	
+	public boolean pesquisar(String estrategia, LocalDate dataVencimento) {
+		for (var investimento : investimentos) 
+			if (investimento.getEstrategia().equalsIgnoreCase(estrategia) && dataVencimento.isEqual(investimento.getVencimento()))
+				return true;
+		
+		return false;
 	}
 }

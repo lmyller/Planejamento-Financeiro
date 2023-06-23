@@ -1,8 +1,11 @@
 package lmv.planejamentofinanceiro.lista;
 
+import static mos.es.InputOutput.showError;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
@@ -11,12 +14,8 @@ import lmv.planejamentofinanceiro.interfaces.DadosLista;
 import lmv.planejamentofinanceiro.modelo.Orcamento;
 import lmv.planejamentofinanceiro.validacao.ValidacaoData;
 
-import static mos.es.InputOutput.*;
+public class OrcamentoLista implements DadosLista<Orcamento>, Iterable<Orcamento>{
 
-public class OrcamentoLista implements DadosLista<Orcamento, TipoDadoPesquisaDespesa>{
-
-	private final String VALOR_INVALIDO = "Valor inválido!"; 
-	
 	private List<Orcamento> orcamentos;
 	
 	public OrcamentoLista() {
@@ -45,7 +44,6 @@ public class OrcamentoLista implements DadosLista<Orcamento, TipoDadoPesquisaDes
 		return -1;
 	}
 
-	@Override
 	public int pesquisar(String stringPesquisada, TipoDadoPesquisaDespesa tipoDado) {
 		if (tipoDado == TipoDadoPesquisaDespesa.DATA)
 			return pesquisarData(stringPesquisada);
@@ -86,7 +84,7 @@ public class OrcamentoLista implements DadosLista<Orcamento, TipoDadoPesquisaDes
 		LocalDate localDate;
 		
 		if (new ValidacaoData().valida(stringPesquisada)) {
-			localDate = LocalDate.parse(stringPesquisada, DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA));
+			localDate = LocalDate.parse(stringPesquisada, DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_COMPLETA));
 			
 			for (int indice = 0; indice < tamanhoLista(); indice++)
 				if (localDate.isEqual(obter(indice).getDataDespesa()))
@@ -118,5 +116,10 @@ public class OrcamentoLista implements DadosLista<Orcamento, TipoDadoPesquisaDes
 	@Override
 	public int tamanhoLista() {
 		return orcamentos.size();
+	}
+
+	@Override
+	public Iterator<Orcamento> iterator() {
+		return orcamentos.iterator();
 	}
 }

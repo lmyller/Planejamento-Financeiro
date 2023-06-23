@@ -2,23 +2,26 @@ package lmv.planejamentofinanceiro.modelo;
 
 public class FormaPagamento {
 	
-	private String tipoFormaPagamento, descricao;
+	private final int CODIGO;
+	private String descricao;
+	
+	private static int gerarCodigo;
 
-	private FormaPagamento(String tipoFormaPagamento, String descricao) {
-		this.tipoFormaPagamento = tipoFormaPagamento;
+	private FormaPagamento() {
+		CODIGO = gerarCodigo++;
+	}
+
+	public FormaPagamento(String descricao) {
+		this();
 		this.descricao = descricao;
 	}
 
-	public String getTipoFormaPagamento() {
-		return tipoFormaPagamento;
+	public int getCodigo() {
+		return CODIGO;
 	}
 
 	public String getDescricao() {
 		return descricao;
-	}
-
-	public void setTipoFormaPagamento(String tipoFormaPagamento) {
-		this.tipoFormaPagamento = tipoFormaPagamento;
 	}
 
 	public void setDescricao(String descricao) {

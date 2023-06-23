@@ -1,16 +1,28 @@
 package lmv.planejamentofinanceiro.modelo;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
-public class Investimento {
-	private int codigo;
+import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
+import lmv.planejamentofinanceiro.interfaces.Tolist;
+import lmv.planejamentofinanceiro.validacao.ValidacaoData;
+
+public class Investimento implements Tolist<Investimento> {
+	private final int CODIGO;
 	private String objetivo, nome, estrategia;
 	private Float valorInvestido, posicao, rendimentoBruto, rentabilidade;
-	private LocalDate vendimento;
+	private LocalDate vencimento;
+	private static int gerarCodigo;
 	
-	public Investimento(int codigo, String objetivo, String nome, String estrategia, Float valorInvestido,
-			Float posicao, Float rendimentoBruto, Float rentabilidade, LocalDate vendimento) {
-		this.codigo = codigo;
+	private Investimento() {
+		CODIGO = ++gerarCodigo;
+	}
+
+	public Investimento(String objetivo, String nome, String estrategia, Float valorInvestido,
+			Float posicao, Float rendimentoBruto, Float rentabilidade, LocalDate vencimento) {
+		this();
 		this.objetivo = objetivo;
 		this.nome = nome;
 		this.estrategia = estrategia;
@@ -18,15 +30,11 @@ public class Investimento {
 		this.posicao = posicao;
 		this.rendimentoBruto = rendimentoBruto;
 		this.rentabilidade = rentabilidade;
-		this.vendimento = vendimento;
+		this.vencimento = vencimento;
 	}
 
 	public int getCodigo() {
-		return codigo;
-	}
-
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
+		return CODIGO;
 	}
 
 	public String getObjetivo() {
@@ -85,19 +93,29 @@ public class Investimento {
 		this.rentabilidade = rentabilidade;
 	}
 
-	public LocalDate getVendimento() {
-		return vendimento;
+	public LocalDate getVencimento() {
+		return vencimento;
 	}
 
-	public void setVendimento(LocalDate vendimento) {
-		this.vendimento = vendimento;
+	public void setVencimento(LocalDate vencimento) {
+		this.vencimento = vencimento;
 	}
 
 	@Override
 	public String toString() {
 		return String.format(
-				"codigo = %s, objetivo = %s, nome = %s, estrategia = %s, valorInvestido = %s, posicao = %s, rendimentoBruto = %s, rentabilidade = %s, vendimento = %s",
-				codigo, objetivo, nome, estrategia, valorInvestido, posicao, rendimentoBruto, rentabilidade,
-				vendimento);
+				"codigo = %s, objetivo = %s, nome = %s, estrategia = %s, valorInvestido = %s, posicao = %s, rendimentoBruto = %s, rentabilidade = %s, vencimento = %s",
+				CODIGO, objetivo, nome, estrategia, valorInvestido, posicao, rendimentoBruto, rentabilidade,
+				vencimento);
+	}
+
+	@Override
+	public Object[] toList() {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		NumberFormat formatPercentual = NumberFormat.getPercentInstance();
+		
+		return new Object[] {getObjetivo(), getEstrategia(), getNome(), formatPreco.format(getValorInvestido()), formatPreco.format(posicao), 
+										   formatPreco.format(rendimentoBruto), formatPercentual.format(getRentabilidade()), 
+										   getVencimento().format(DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_COMPLETA))};
 	}
 }

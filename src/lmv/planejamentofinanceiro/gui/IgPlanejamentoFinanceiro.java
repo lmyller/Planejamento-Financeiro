@@ -4,18 +4,18 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,16 +23,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import lmv.planejamentofinanceiro.Arquivo;
 import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
 import lmv.planejamentofinanceiro.enumeracao.Mes;
 import lmv.planejamentofinanceiro.lista.InvestimentoLista;
 import lmv.planejamentofinanceiro.lista.OrcamentoLista;
+import lmv.planejamentofinanceiro.lista.RendaMensalLista;
+import lmv.planejamentofinanceiro.modelo.Orcamento;
 import mos.es.InputOutput;
 import net.miginfocom.swing.MigLayout;
 
@@ -41,8 +42,11 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 	private final String ERRO_ABRIR_ARQUIVO = "Erro ao abrir arquivo",
 									ARQUIVO_NAO_SELECIONADO = "Arquivo não selecionado";
 	
+	public static final int COLUNA_DATA = 0,
+									   COLUNA_DESCRICAO = 3,
+									   COLUNA_VALOR = 4;
+	
 	private IgPlanejamentoFinanceiro igPlanejamentoFinanceiro;
-	private IgPesquisarDespesa igPesquisarDespesa;
 	private JPanel contentPane;
 	private JTextField receitaTextField;
 	private JTextField despesaTextField;
@@ -53,6 +57,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 	private JPanel orcamentoPanel;
 	private JLabel mesLabel;
 	private JTable orcamentoTable;
+	DefaultTableModel defaultTableModelOrcamento;
 	private JButton pesquisarDespesaButton;
 	private JButton graficoBarrasButton;
 	private JButton graficoPizzaButton;
@@ -66,8 +71,10 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public IgPlanejamentoFinanceiro(OrcamentoLista orcamentoLista, InvestimentoLista investimentoLista) {
+	public IgPlanejamentoFinanceiro(OrcamentoLista orcamentoLista, InvestimentoLista investimentoLista, RendaMensalLista rendaMensalLista) {
 		this.igPlanejamentoFinanceiro = this;
+		String[] colunas = new String[]{ "Data", "Dia", "Tipo", "Descri\u00E7\u00E3o", "Valor", "Paga"};
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -195,31 +202,25 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		orcamentoTable.setBackground(new Color(255, 255, 255));
 		orcamentoTable.setShowVerticalLines(true);
 		orcamentoTable.setShowHorizontalLines(true);
-		orcamentoTable.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"Data", "Dia", "Tipo", "Descri\u00E7\u00E3o", "Valor", "Paga"
-			}
-		) {
-			Class[] columnTypes = new Class[] {
-				String.class, Short.class, String.class, String.class, Double.class, Boolean.class
-			};
-			public Class getColumnClass(int columnIndex) {
-				return columnTypes[columnIndex];
-			}
-		});
+		defaultTableModelOrcamento = new DefaultTableModel(colunas, 0);
+		orcamentoTable.setModel(defaultTableModelOrcamento);
 		orcamentoTable.getColumnModel().getColumn(0).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		orcamentoTable.getColumnModel().getColumn(1).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(1).setPreferredWidth(5);
 		orcamentoTable.getColumnModel().getColumn(2).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(2).setPreferredWidth(40);
 		orcamentoTable.getColumnModel().getColumn(3).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(3).setPreferredWidth(250);
 		orcamentoTable.getColumnModel().getColumn(4).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(4).setPreferredWidth(50);
 		orcamentoTable.getColumnModel().getColumn(5).setResizable(false);
+		orcamentoTable.getColumnModel().getColumn(5).setPreferredWidth(20);
 		
 		pesquisarDespesaButton = new JButton("Pesquisar Despesa...");
 		pesquisarDespesaButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				igPesquisarDespesa = igPesquisarDespesa == null ? new IgPesquisarDespesa() : igPesquisarDespesa;;
+				new IgPesquisarDespesa(igPlanejamentoFinanceiro, orcamentoLista);
 			}
 		});
 		pesquisarDespesaButton.setBounds(21, 295, 141, 28);
@@ -240,6 +241,11 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		orcamentoPanel.add(graficoPizzaButton);
 		
 		mesComboBox = new JComboBox<>();
+		mesComboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				preencherTabela(orcamentoLista, mesComboBox.getSelectedIndex() + 1, categoriaComboBox.getSelectedItem().toString());
+			}
+		});
 		mesComboBox.setBounds(50, 25, 101, 26);
 		mesLabel.setLabelFor(mesComboBox);
 		mesComboBox.setModel(new DefaultComboBoxModel<Object>(Mes.values()));
@@ -252,6 +258,11 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		orcamentoPanel.add(categoriaLabel);
 		
 		categoriaComboBox = new JComboBox<>();
+		categoriaComboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				preencherTabela(orcamentoLista, mesComboBox.getSelectedIndex() + 1, categoriaComboBox.getSelectedItem().toString());
+			}
+		});
 		categoriaComboBox.setBounds(213, 25, 119, 26);
 		categoriaLabel.setLabelFor(categoriaComboBox);
 		categoriaComboBox.setBackground(new Color(255, 255, 255));
@@ -265,12 +276,24 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		importarButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					importarArquivos(investimentoLista, orcamentoLista);
+					Arquivo.importarArquivos(igPlanejamentoFinanceiro, investimentoLista, orcamentoLista, rendaMensalLista);
+					
 				} catch (IOException iOExcepion) {
 					InputOutput.showError(ERRO_ABRIR_ARQUIVO, PlanejamentoFinanceiro.TITULO);
 				} catch (NullPointerException nullPointerException) {
 					InputOutput.showError(ARQUIVO_NAO_SELECIONADO, PlanejamentoFinanceiro.TITULO);
 				}
+				if (orcamentoLista.tamanhoLista() > 0) {
+					preencherTabela(orcamentoLista, mesComboBox.getSelectedIndex() + 1, orcamentoLista.obter(0).getDespesa().getCategoria().getDescricao());
+					adicionarCategorias(orcamentoLista);
+				}
+				
+				totalPago(orcamentoLista);
+				totalNaoPago(orcamentoLista);
+				despesaTotal(orcamentoLista);
+				totalAcumulado(investimentoLista);
+				receitaTotal(rendaMensalLista);
+				saldo(rendaMensalLista, orcamentoLista);
 			}
 		});
 		panel.add(importarButton);
@@ -281,7 +304,7 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		investimentosButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				new IgInvestimento(igPlanejamentoFinanceiro);
+				new IgInvestimento(igPlanejamentoFinanceiro, investimentoLista);
 			}
 		});
 		panel.add(investimentosButton);
@@ -290,56 +313,112 @@ public class IgPlanejamentoFinanceiro extends JFrame {
 		
 		setVisible(true);
 	}
+	
+	public JTable getOrcamentoTable() {
+		return orcamentoTable;
+	}
 
-	private void importarArquivos(InvestimentoLista investimentoLista, OrcamentoLista orcamentoLista) throws IOException, NullPointerException {
-		File[] files = lerNomeArquivo(); 
+	private void preencherTabela(OrcamentoLista orcamentoLista, int mes, String categoria) {
+		if (defaultTableModelOrcamento.getRowCount() > 0)
+			apagarTabela();
 		
-		List<String> nomeArquivo = new ArrayList<>();
-		
-		try {
-			for (var file : files)
-				nomeArquivo.add(file.getCanonicalPath());
-			
-			lerArquivos(investimentoLista, orcamentoLista);
-				
-		} catch (IOException iOException) {
-			throw new IOException();
-		} catch (NullPointerException nullPointerException) {
-			throw new NullPointerException();
+		for (var orcamento : orcamentoLista) {
+			if (orcamento.getDataDespesa().getMonthValue() == mes && orcamento.getDespesa().getCategoria().getDescricao().equalsIgnoreCase(categoria))
+				defaultTableModelOrcamento.addRow(orcamento.toList());
 		}
 	}
 
-	private void lerArquivos(InvestimentoLista investimentoLista, OrcamentoLista orcamentoLista) {
-		
+	private void apagarTabela() {
+		for (int indice = 0; indice < defaultTableModelOrcamento.getRowCount(); indice++)
+			defaultTableModelOrcamento.removeRow(indice);
 	}
-
-	private File[] lerNomeArquivo() {
-		JFileChooser jFileChooser = criarFileChooser();
-		
-		int opcao = jFileChooser.showOpenDialog(this);
-		
-		try {
-			return opcao == JFileChooser.APPROVE_OPTION ? jFileChooser.getSelectedFiles() : null;
-		} catch (Exception e) {
-			return null;
+	
+	private void adicionarCategorias(OrcamentoLista orcamentoLista) {
+		for (var orcamento : orcamentoLista) {
+			if (!categoriaExistente(orcamento.getDespesa().getCategoria().getDescricao()))
+				categoriaComboBox.addItem(orcamento.getDespesa().getCategoria().getDescricao().toUpperCase());
 		}
 	}
 
-	private JFileChooser criarFileChooser() {
-	final String DIRETORIO_ATUAL = ".",
-					   ARQUIVO_CSV = "Arquivo CSV (*csv)",
-					   EXTENSAO_CSV = "csv";
+	private boolean categoriaExistente(String descricao) {
+		for (int indice = 0; indice < categoriaComboBox.getItemCount(); indice++)
+			if (descricao.equalsIgnoreCase(categoriaComboBox.getItemAt(indice).toString()))
+				return true;
 		
-		JFileChooser jFileChooser = new JFileChooser();
+		return false;
+	}
+	
+	private void totalPago(OrcamentoLista orcamentoLista) {
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
 		
-		jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		totalPagoTextField.setText(numberFormat.format(calculaTotalPago(orcamentoLista)));
+	}
+
+	private Double calculaTotalPago(OrcamentoLista orcamentoLista) {
+		Double totalPago = 0D;
 		
-		jFileChooser.setCurrentDirectory(new File(DIRETORIO_ATUAL));
+		for (var orcamento : orcamentoLista)
+			if (orcamento.isSituacao())
+				totalPago += orcamento.getValor();
 		
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(ARQUIVO_CSV, EXTENSAO_CSV);
+		return totalPago;
+	}
+	
+	private void totalNaoPago(OrcamentoLista orcamentoLista) {
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
 		
-		jFileChooser.setFileFilter(filter);
+		totalPagarTextField.setText(numberFormat.format(calculaTotalNaoPago(orcamentoLista)));
+	}
+
+	private Double calculaTotalNaoPago(OrcamentoLista orcamentoLista) {
+		Double totalNaoPago = 0D;
 		
-		return jFileChooser;
+		for (var orcamento : orcamentoLista)
+			if (!orcamento.isSituacao())
+				totalNaoPago += orcamento.getValor();
+		
+		return totalNaoPago;
+	}
+	
+	private void despesaTotal(OrcamentoLista orcamentoLista) {
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		despesaTextField.setText(numberFormat.format(calculaTotalPago(orcamentoLista) + calculaTotalNaoPago(orcamentoLista)));
+	}
+	
+	private void totalAcumulado(InvestimentoLista investimentoLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		investimentoTextField.setText(formatPreco.format(calculaTotalAcumulado(investimentoLista)));
+	}
+
+	private Double calculaTotalAcumulado(InvestimentoLista investimentoLista) {
+		Double totalAcumulado = 0D;
+		
+		for (var investimento : investimentoLista)
+			totalAcumulado += investimento.getPosicao();
+		
+		return totalAcumulado;
+	}
+	
+	private void receitaTotal(RendaMensalLista rendaMensalLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		receitaTextField.setText(formatPreco.format(calculaReceitaTotal(rendaMensalLista)));
+	}
+
+	private Double calculaReceitaTotal(RendaMensalLista rendaMensalLista) {
+		Double receitaTotal = 0D;
+		
+		for (var rendaMensal : rendaMensalLista)
+			receitaTotal += rendaMensal.getValor();
+		
+		return receitaTotal;
+	}
+	
+	private void saldo(RendaMensalLista rendaMensalLista, OrcamentoLista orcamentoLista) {
+		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
+		
+		saldoTextField.setText(formatPreco.format(calculaReceitaTotal(rendaMensalLista) - (calculaTotalPago(orcamentoLista) + calculaTotalNaoPago(orcamentoLista))));
 	}
 }
