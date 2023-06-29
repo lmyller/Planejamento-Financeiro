@@ -10,19 +10,15 @@ import lmv.planejamentofinanceiro.interfaces.Tolist;
 import lmv.planejamentofinanceiro.validacao.ValidacaoData;
 
 public class Investimento implements Tolist<Investimento> {
-	private final int CODIGO;
+	private Integer codigo;
 	private String objetivo, nome, estrategia;
 	private Float valorInvestido, posicao, rendimentoBruto, rentabilidade;
 	private LocalDate vencimento;
-	private static int gerarCodigo;
 	
-	private Investimento() {
-		CODIGO = ++gerarCodigo;
-	}
+	public Investimento() { }
 
 	public Investimento(String objetivo, String nome, String estrategia, Float valorInvestido,
 			Float posicao, Float rendimentoBruto, Float rentabilidade, LocalDate vencimento) {
-		this();
 		this.objetivo = objetivo;
 		this.nome = nome;
 		this.estrategia = estrategia;
@@ -33,8 +29,12 @@ public class Investimento implements Tolist<Investimento> {
 		this.vencimento = vencimento;
 	}
 
-	public int getCodigo() {
-		return CODIGO;
+	public Integer getCodigo() {
+		return codigo;
+	}
+	
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getObjetivo() {
@@ -105,7 +105,7 @@ public class Investimento implements Tolist<Investimento> {
 	public String toString() {
 		return String.format(
 				"codigo = %s, objetivo = %s, nome = %s, estrategia = %s, valorInvestido = %s, posicao = %s, rendimentoBruto = %s, rentabilidade = %s, vencimento = %s",
-				CODIGO, objetivo, nome, estrategia, valorInvestido, posicao, rendimentoBruto, rentabilidade,
+				codigo, objetivo, nome, estrategia, valorInvestido, posicao, rendimentoBruto, rentabilidade,
 				vencimento);
 	}
 

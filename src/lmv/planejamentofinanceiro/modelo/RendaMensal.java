@@ -6,6 +6,8 @@ public class RendaMensal extends Renda{
 	private LocalDate data;
 	private Float valor;
 	
+	public RendaMensal() {}
+
 	public RendaMensal(String descricao, LocalDate data, Float valor) {
 		super(descricao);
 		this.data = data;

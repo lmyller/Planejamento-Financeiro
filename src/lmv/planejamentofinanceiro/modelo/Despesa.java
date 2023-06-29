@@ -1,24 +1,23 @@
 package lmv.planejamentofinanceiro.modelo;
 
 public class Despesa {
-	private final int CODIGO;
+	private Integer codigo;
 	private String descricao;
 	private Categoria categoria;
 	
-	private static int gerarCodigo;
-	
-	private Despesa() {
-		CODIGO = ++gerarCodigo;
-	}
+	public Despesa() { }
 
 	public Despesa(String descricao, Categoria categoria) {
-		this();
 		this.descricao = descricao;
 		this.categoria = categoria;
 	}
 
-	public int getCodigo() {
-		return CODIGO;
+	public Integer getCodigo() {
+		return codigo;
+	}
+	
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getDescricao() {

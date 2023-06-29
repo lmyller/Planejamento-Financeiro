@@ -1,22 +1,21 @@
 package lmv.planejamentofinanceiro.modelo;
 
 public class Categoria {
-	private final int CODIGO;
+	private Integer codigo;
 	private String descricao;
 	
-	private static int gerarCodigo;
-	
-	private Categoria() {
-		CODIGO = gerarCodigo++;
-	}
+	public Categoria() {}
 
 	public Categoria(String descricao) {
-		this();
 		this.descricao = descricao;
 	}
 
-	public int getCodigo() {
-		return CODIGO;
+	public Integer getCodigo() {
+		return codigo;
+	}
+	
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getDescricao() {

@@ -1,21 +1,21 @@
 package lmv.planejamentofinanceiro.modelo;
 
 public abstract class Renda {
-	private final int CODIGO;
+	private Integer codigo;
 	private String descricao;
-	private static int gerarCodigo;
 	
-	public Renda() {
-		CODIGO = ++gerarCodigo;
-	}
+	public Renda() {}
 
 	public Renda(String descricao) {
-		this();
 		this.descricao = descricao;
 	}
 
-	public int getCodigo() {
-		return CODIGO;
+	public Integer getCodigo() {
+		return codigo;
+	}
+	
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getDescricao() {
@@ -28,6 +28,6 @@ public abstract class Renda {
 
 	@Override
 	public String toString() {
-		return String.format("codigo = %s, descricao = %s", CODIGO, descricao);
+		return String.format("codigo = %s, descricao = %s", codigo, descricao);
 	}
 }	
