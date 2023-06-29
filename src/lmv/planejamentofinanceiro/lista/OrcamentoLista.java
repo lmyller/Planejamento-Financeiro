@@ -21,6 +21,10 @@ public class OrcamentoLista implements DadosLista<Orcamento>, Iterable<Orcamento
 	public OrcamentoLista() {
 		criar();
 	}
+	
+	public OrcamentoLista(List<Orcamento> orcamentos) {
+		this.orcamentos = orcamentos;
+	}
 
 	@Override
 	public void criar() {

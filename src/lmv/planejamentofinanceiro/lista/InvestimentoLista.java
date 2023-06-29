@@ -16,6 +16,10 @@ public class InvestimentoLista implements DadosLista<Investimento>, Iterable<Inv
 		criar();
 	}
 	
+	public InvestimentoLista(List<Investimento> investimentos) {
+		this.investimentos = investimentos;
+	}
+	
 	@Override
 	public void criar() {
 		investimentos = new ArrayList<>();

@@ -12,8 +12,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import lmv.planejamentofinanceiro.lista.InvestimentoLista;
 import lmv.planejamentofinanceiro.lista.OrcamentoLista;
 import lmv.planejamentofinanceiro.lista.RendaMensalLista;
-import lmv.planejamentofinanceiro.validacao.ValidacaoData;
-import lmv.planejamentofinanceiro.validacao.ValidacaoFormaPagamento;
 import mos.es.InputOutput;
 import mos.reader.Line;
 import mos.reader.Reader;
@@ -51,16 +49,10 @@ public class Arquivo {
 		
 		List<String> nomeArquivo = new ArrayList<>();
 		
-		try {
-			for (var file : files)
-				nomeArquivo.add(file.getCanonicalPath());
-			
-			lerArquivos(nomeArquivo, investimentoLista, orcamentoLista, rendaMensalLista);
-		} catch (IOException iOException) {
-			throw new IOException();
-		} catch (NullPointerException nullPointerException) {
-			throw new NullPointerException();
-		}
+		for (var file : files)
+			nomeArquivo.add(file.getCanonicalPath());
+		
+		lerArquivos(nomeArquivo, investimentoLista, orcamentoLista, rendaMensalLista);
 	}
 
 	private static void lerArquivos(List<String> nomeArquivos, InvestimentoLista investimentoLista, OrcamentoLista orcamentoLista, RendaMensalLista rendaMensalLista) {
@@ -82,107 +74,39 @@ public class Arquivo {
 	}
 
 	private static int lerArquivoRenda(List<Line> linhaArquivo, RendaMensalLista rendaMensalLista) {
-		Float valor = null;
 		int numeroLinhas = 0;
 		
 		for (var linha : linhaArquivo) {
-			if (linha.quantityOfData() != QUANTIDADE_COLUNAS_ARQUIVO_RECEITA)
-				continue;
-			
-			if (linha.getData(COLUNA_TIPO) == null)
-				continue;
-			
-			if (!new ValidacaoData().valida(linha.getData(COLUNA_DATA)))
-				continue;
-			
-			valor = converterNumeroReal(linha.getData(COLUNA_VALOR_RECEITA));
-			
-			if (valor == null)
-				continue;
-			
-			numeroLinhas++;
-			
-			rendaMensalLista.inserir(PlanejamentoFinanceiro.criarRenda(linha, valor));
+			if (PlanejamentoFinanceiro.validarRendaMensal(linha)) {
+				rendaMensalLista.inserir(PlanejamentoFinanceiro.criarRenda(linha));
+				numeroLinhas++;
+			}
 		}
 		return numeroLinhas;
 	}
 
 	private static int lerArquivoInvestimento(List<Line> linhaArquivo, InvestimentoLista investimentoLista) {
-		Float valorInvestido = null,
-				 posicao = null,
-				 rendimentoBruto = null,
-				 rentabilidade = null;
 		int numeroLinhas = 0;
 		
 		for (var linha : linhaArquivo) {
-			if (linha.quantityOfData() != QUANTIDADE_COLUNAS_ARQUIVO_INVESTIMENTO)
-				continue;
-			
-			if (linha.getData(COLUNA_OBJETIVO) == null || linha.getData(COLUNA_ESTRATEGIA) == null)
-				continue;
-			
-			if (linha.getData(COLUNA_NOME) == null)
-				continue;
-			
-			valorInvestido = converterNumeroReal(linha.getData(COLUNA_VALOR_INVESTIDO));
-			posicao = converterNumeroReal(linha.getData(COLUNA_POSICAO));
-			if (valorInvestido == null || posicao == null)
-				continue;
-				
-			rendimentoBruto = converterNumeroReal(linha.getData(COLUNA_RENDIMENTO_BRUTO));
-			rentabilidade = converterNumeroReal(linha.getData(COLUNA_RENTABILIDADE));
-			if(rendimentoBruto == null || rentabilidade == null)
-				continue;
-			
-			if (!new ValidacaoData().valida(linha.getData(COLUNA_VENCIMENTO)))
-				continue;
-			
-			numeroLinhas++;
-			
-			investimentoLista.inserir(PlanejamentoFinanceiro.criarInvestimento(linha, valorInvestido, posicao, rendimentoBruto, rentabilidade));
+			if (PlanejamentoFinanceiro.validarInvestimento(linha)) {
+				investimentoLista.inserir(PlanejamentoFinanceiro.criarInvestimento(linha));
+				numeroLinhas++;
+			}
 		}
-		
 		return numeroLinhas;
 	}
 
 	private static int lerArquivoDespesa(List<Line> linhaArquivo, OrcamentoLista orcamentoLista) {
 		int numeroLinhas = 0;
-		Float valor = null;
 		
 		for (var linha : linhaArquivo) {
-			if (!new ValidacaoData().valida(linha.getData(COLUNA_DATA_DESPESA)))
-				continue;
-
-			if (!new ValidacaoData().valida(linha.getData(COLUNA_DIA_PAGAMENTO), ValidacaoData.REGEX_DATA_DIA_MES))
-				continue;
-
-			if (!new ValidacaoFormaPagamento().valida(linha.getData(COLUNA_FORMA_PAGAMENTO)))
-				continue;
-
-			if (linha.getData(COLUNA_DESCRICAO) == null || linha.getData(COLUNA_CATEGORIA) == null)
-				continue;
-
-			valor = converterNumeroReal(linha.getData(COLUNA_VALOR_DESPESA));
-			if (valor == null)
-				continue;
-			
-			if (linha.quantityOfData() == QUANTIDADE_COLUNAS_ARQUIVO_DESPESA)
-				if (!linha.getData(COLUNA_SITUACAO).equalsIgnoreCase("Paga"))
-					continue;
-			
-			numeroLinhas++;
-			
-			orcamentoLista.inserir(PlanejamentoFinanceiro.criarOrcamento(linha, valor));
+			if (PlanejamentoFinanceiro.validarDespesa(linha)) {
+				orcamentoLista.inserir(PlanejamentoFinanceiro.criarOrcamento(linha));
+				numeroLinhas++;
+			}
 		}
 		return numeroLinhas;
-	}
-
-	public static Float converterNumeroReal(String numeroString) {
-		try {
-			return Float.parseFloat(numeroString.replace(".", "").replace(",", ".").replace("%", "").replace("RS ", ""));
-		} catch (NullPointerException | NumberFormatException exception) {
-			return null;
-		}
 	}
 
 	private static File[] lerNomeArquivo(Component component) {

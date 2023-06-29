@@ -15,6 +15,10 @@ public class RendaMensalLista implements DadosLista<RendaMensal>, Iterable<Renda
 		criar();
 	}
 	
+	public RendaMensalLista(List<RendaMensal> rendas) {
+		this.rendas = rendas;
+	}
+	
 	@Override
 	public void criar() {
 		rendas = new ArrayList<>();
