@@ -125,7 +125,7 @@ public class IgInvestimento extends JDialog {
 		investimentoTable = new JTable();
 		investimentoTable.setShowVerticalLines(true);
 		investimentoTable.setShowHorizontalLines(true);
-		defaultTableModelInvestimento = new DefaultTableModel(colunas, 0);
+		defaultTableModelInvestimento = new DefaultTableModel(colunas, 1);
 		investimentoTable.setModel(defaultTableModelInvestimento);
 		investimentoTable.getColumnModel().getColumn(0).setResizable(false);
 		investimentoTable.getColumnModel().getColumn(1).setResizable(false);
@@ -168,16 +168,33 @@ public class IgInvestimento extends JDialog {
 	}
 	
 	private void preencherTabela(InvestimentoLista investimentoLista) {
-		for (var investimento : investimentoLista)
-			defaultTableModelInvestimento.addRow(investimento.toList());
+		int indice = -1;
+		
+		for (var investimento : investimentoLista) {
+			indice++;
+			Object[] dadosInvestimento = investimento.toList();
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[0], indice, 0);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[1], indice, 1);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[2], indice, 2);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[3], indice, 3);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[4], indice, 4);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[5], indice, 5);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[6], indice, 6);
+			defaultTableModelInvestimento.setValueAt(dadosInvestimento[7], indice, 7);
+			
+			if (defaultTableModelInvestimento.getRowCount() == indice + 1)
+				adicionarLinha();
+			}
+	}
+
+	private void adicionarLinha() {
+		defaultTableModelInvestimento.addRow(new Object[] {null, null, null, null, null, null, null, null});
 	}
 
 	private void fecharJanela(IgPlanejamentoFinanceiro igPlanejamentoFinanceiro) {
 		this.dispose();
 		igPlanejamentoFinanceiro.setVisible(true);
 	}
-	
-	
 	
 	private void totalValorInvestido(InvestimentoLista investimentoLista) {
 		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));

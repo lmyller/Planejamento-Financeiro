@@ -1,10 +1,13 @@
 package lmv.planejamentofinanceiro.gui;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -14,7 +17,6 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import lmv.planejamentofinanceiro.Arquivo;
 import lmv.planejamentofinanceiro.PlanejamentoFinanceiro;
 import lmv.planejamentofinanceiro.enumeracao.TipoDadoPesquisaDespesa;
 import lmv.planejamentofinanceiro.interfaces.DadosLista;
@@ -22,9 +24,6 @@ import lmv.planejamentofinanceiro.lista.OrcamentoLista;
 import lmv.planejamentofinanceiro.validacao.ValidacaoData;
 import mos.es.InputOutput;
 import net.miginfocom.swing.MigLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class IgPesquisarDespesa extends JDialog {
 
@@ -34,6 +33,7 @@ public class IgPesquisarDespesa extends JDialog {
 	private JRadioButton descricaoRadioButton;
 	private JRadioButton valorRadioButton;
 	private int indiceDespesa;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 
 	/**
 	 * Create the frame.
@@ -78,17 +78,20 @@ public class IgPesquisarDespesa extends JDialog {
 		contentPane.add(procurarLabel, "cell 0 1,growx,aligny center");
 		
 		dataRadioButton = new JRadioButton("Data");
+		buttonGroup.add(dataRadioButton);
 		dataRadioButton.setBackground(new Color(255, 255, 255));
 		dataRadioButton.setSelected(true);
 		dataRadioButton.setMnemonic(KeyEvent.VK_D);
 		contentPane.add(dataRadioButton, "cell 1 1,growx,aligny top");
 		
 		descricaoRadioButton = new JRadioButton("Descrição");
+		buttonGroup.add(descricaoRadioButton);
 		descricaoRadioButton.setBackground(new Color(255, 255, 255));
 		descricaoRadioButton.setMnemonic(KeyEvent.VK_E);
 		contentPane.add(descricaoRadioButton, "cell 3 1,growx,aligny top");
 		
 		valorRadioButton = new JRadioButton("Valor");
+		buttonGroup.add(valorRadioButton);
 		valorRadioButton.setBackground(new Color(255, 255, 255));
 		valorRadioButton.setMnemonic(KeyEvent.VK_V);
 		contentPane.add(valorRadioButton, "cell 5 1 3 1,growx,aligny top");
@@ -116,7 +119,7 @@ public class IgPesquisarDespesa extends JDialog {
 	}
 	
 	private void encontrarDespesa(OrcamentoLista orcamentoLista, IgPlanejamentoFinanceiro igPlanejamentoFinanceiro, int indiceDespesa) {
-		Float valor = null;
+		Double valor = null;
 		
 		if (itemTextField != null) {
 			if (dataRadioButton.isSelected() && new ValidacaoData().valida(itemTextField.getText()))
@@ -128,9 +131,10 @@ public class IgPesquisarDespesa extends JDialog {
 					buscarTabelaDescricao(itemTextField.getText(), igPlanejamentoFinanceiro, indiceDespesa);
 			
 			if (valorRadioButton.isSelected())
-				if (orcamentoLista.pesquisar(itemTextField.getText(), TipoDadoPesquisaDespesa.VALOR) != -1)
-					valor = Arquivo.converterNumeroReal(itemTextField.getText());
+				if (orcamentoLista.pesquisar(itemTextField.getText(), TipoDadoPesquisaDespesa.VALOR) != -1) {
+					valor = PlanejamentoFinanceiro.converterNumeroReal(itemTextField.getText());
 					buscarTabelaValor(valor, igPlanejamentoFinanceiro, indiceDespesa);
+				}
 		}
 		
 		else
@@ -141,8 +145,9 @@ public class IgPesquisarDespesa extends JDialog {
 		DefaultTableModel defaultTableModelOrcamento = igPlanejamentoFinanceiro.defaultTableModelOrcamento;
 		for (int indice = indiceDespesa; indice < defaultTableModelOrcamento.getRowCount(); indice++) {
 			if (defaultTableModelOrcamento.getValueAt(indice, IgPlanejamentoFinanceiro.COLUNA_DATA).toString().equalsIgnoreCase(data)) {
-				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, IgPlanejamentoFinanceiro.COLUNA_DATA);
+				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, 0);
 				indiceDespesa = indice;
+				return;
 			}
 		}
 	}
@@ -151,25 +156,27 @@ public class IgPesquisarDespesa extends JDialog {
 		DefaultTableModel defaultTableModelOrcamento = igPlanejamentoFinanceiro.defaultTableModelOrcamento;
 		for (int indice = indiceDespesa; indice < defaultTableModelOrcamento.getRowCount(); indice++) {
 			if (defaultTableModelOrcamento.getValueAt(indice, IgPlanejamentoFinanceiro.COLUNA_DESCRICAO).toString().equalsIgnoreCase(descricao)) {
-				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, IgPlanejamentoFinanceiro.COLUNA_DESCRICAO);
+				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, 0);
 				indiceDespesa = indice;
+				return;
 			}
 		}
 	}
 	
-	private void buscarTabelaValor(Float valor, IgPlanejamentoFinanceiro igPlanejamentoFinanceiro, int indiceDespesa) {
-		Float valorTabela = null;
+	private void buscarTabelaValor(Double valor, IgPlanejamentoFinanceiro igPlanejamentoFinanceiro, int indiceDespesa) {
+		Double valorTabela = null;
 		DefaultTableModel defaultTableModelOrcamento = igPlanejamentoFinanceiro.defaultTableModelOrcamento;
 		for (int indice = indiceDespesa; indice < defaultTableModelOrcamento.getRowCount(); indice++) {
-			valorTabela = Arquivo.converterNumeroReal(defaultTableModelOrcamento.getValueAt(indice, IgPlanejamentoFinanceiro.COLUNA_VALOR).toString());
+			valorTabela = PlanejamentoFinanceiro.converterNumeroReal(defaultTableModelOrcamento.getValueAt(indice, IgPlanejamentoFinanceiro.COLUNA_VALOR).toString());
 			if(valorTabela == null) {
 				InputOutput.showError(DadosLista.VALOR_INVALIDO, getTitle());
 				return;
 			}
 			
 			if (valorTabela == valor) {
-				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, IgPlanejamentoFinanceiro.COLUNA_VALOR);
+				igPlanejamentoFinanceiro.getOrcamentoTable().setRowSelectionInterval(indice, 0);
 				indiceDespesa = indice;
+				return;
 			}
 		}
 	}

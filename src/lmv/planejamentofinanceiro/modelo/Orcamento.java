@@ -15,13 +15,13 @@ public class Orcamento implements Tolist<Orcamento>{
 	private short mesAno;
 	private LocalDate dataDespesa;
 	private MonthDay dataPagamento;
-	private Float valor;
+	private Double valor;
 	private Despesa despesa;
 	private FormaPagamento formaPagamento;
 	private boolean situacao;
 	
-	public Orcamento(short mesAno, LocalDate dataDespesa, MonthDay dataPagamento, Float valor, Despesa despesa,
-			FormaPagamento formaPagamento, boolean situacao) {
+	public Orcamento(short mesAno, Despesa despesa, LocalDate dataDespesa, MonthDay dataPagamento, FormaPagamento formaPagamento, Double valor, 
+			 boolean situacao) {
 		this.mesAno = mesAno;
 		this.dataDespesa = dataDespesa;
 		this.dataPagamento = dataPagamento;
@@ -55,11 +55,11 @@ public class Orcamento implements Tolist<Orcamento>{
 		this.dataPagamento = dataPagamento;
 	}
 
-	public Float getValor() {
+	public Double getValor() {
 		return valor;
 	}
 
-	public void setValor(Float valor) {
+	public void setValor(Double valor) {
 		this.valor = valor;
 	}
 
@@ -91,7 +91,7 @@ public class Orcamento implements Tolist<Orcamento>{
 	public Object[] toList() {
 		NumberFormat formatPreco = NumberFormat.getCurrencyInstance(Locale.of(PlanejamentoFinanceiro.PT, PlanejamentoFinanceiro.BR));
 		
-		return new Object[] {getDataDespesa().format(DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_COMPLETA)), getDataPagamento().getDayOfMonth(),
+		return new Object[] {getDataDespesa().format(DateTimeFormatter.ofPattern(ValidacaoData.DATA_COMPLETA)), getDataPagamento().getDayOfMonth(),
 										   ValidacaoFormaPagamento.siglaFormaPagamento(getFormaPagamento().getDescricao()), getDespesa().getDescricao(), formatPreco.format(getValor()), 
 										   isSituacao()};
 	}

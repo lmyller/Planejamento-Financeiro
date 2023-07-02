@@ -1,13 +1,37 @@
 package lmv.planejamentofinanceiro;
 
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_CATEGORIA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_DATA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_DATA_DESPESA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_DESCRICAO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_DIA_PAGAMENTO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_ESTRATEGIA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_FORMA_PAGAMENTO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_NOME;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_OBJETIVO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_POSICAO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_RENDIMENTO_BRUTO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_RENTABILIDADE;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_SITUACAO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_TIPO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_VALOR_DESPESA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_VALOR_INVESTIDO;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_VALOR_RECEITA;
+import static lmv.planejamentofinanceiro.Arquivo.COLUNA_VENCIMENTO;
+import static lmv.planejamentofinanceiro.Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_DESPESA;
+import static lmv.planejamentofinanceiro.Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_INVESTIMENTO;
+import static lmv.planejamentofinanceiro.Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_RECEITA;
+
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.MonthDay;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.UIManager;
 
 import lmv.planejamentofinanceiro.bd.conexao.Conexao;
+import lmv.planejamentofinanceiro.dao.InvestimentoDAO;
+import lmv.planejamentofinanceiro.dao.OrcamentoDAO;
 import lmv.planejamentofinanceiro.dao.RendaMensalDAO;
 import lmv.planejamentofinanceiro.gui.IgPlanejamentoFinanceiro;
 import lmv.planejamentofinanceiro.lista.InvestimentoLista;
@@ -18,6 +42,7 @@ import lmv.planejamentofinanceiro.modelo.Despesa;
 import lmv.planejamentofinanceiro.modelo.FormaPagamento;
 import lmv.planejamentofinanceiro.modelo.Investimento;
 import lmv.planejamentofinanceiro.modelo.Orcamento;
+import lmv.planejamentofinanceiro.modelo.Renda;
 import lmv.planejamentofinanceiro.modelo.RendaMensal;
 import lmv.planejamentofinanceiro.validacao.ValidacaoData;
 import lmv.planejamentofinanceiro.validacao.ValidacaoFormaPagamento;
@@ -42,30 +67,50 @@ public class PlanejamentoFinanceiro {
 	
 	public PlanejamentoFinanceiro() {
 		Conexao conexao = null;
-		OrcamentoLista orcamentoLista = new OrcamentoLista();
-		InvestimentoLista investimentoLista = new InvestimentoLista();
-		RendaMensalLista rendas = null;
+		OrcamentoLista orcamentoLista = null;
+		InvestimentoLista investimentoLista = null;
+		RendaMensalLista rendasLista = null;
 		
 		try {
 			conexao = new Conexao(URL_BD, USUARIO_BD, SENHA_BD);
 			
-			obterRendasBD(rendas, conexao);
+			rendasLista = obterRendasBD(conexao);
+			orcamentoLista = obterOcamentosBD(conexao);
+			investimentoLista = obterInvestimentosBD(conexao);
 			
-			new IgPlanejamentoFinanceiro(orcamentoLista, investimentoLista, rendas, conexao);
+			new IgPlanejamentoFinanceiro(orcamentoLista, investimentoLista, rendasLista, conexao);
 		} catch (SQLException e) {
 			InputOutput.showError(ERRO_CONEXAO_BANCO_DE_DADOS, TITULO);;
 		}
 	}
-	
-	private void obterRendasBD(RendaMensalLista rendas, Conexao conexao) throws SQLException {
+
+	private RendaMensalLista obterRendasBD(Conexao conexao) throws SQLException {
 		List<RendaMensal> renda = new RendaMensalDAO(conexao.getConnection()).lista();
 		
 		if (renda.size() > 0)
-			rendas = new RendaMensalLista(renda);
+			return new RendaMensalLista(renda);
 		
-		rendas = new RendaMensalLista();
+		return new RendaMensalLista();
+	}
+	
+	private OrcamentoLista obterOcamentosBD(Conexao conexao) throws SQLException {
+		List<Orcamento> orcamentos = new OrcamentoDAO(conexao.getConnection()).lista();
+		
+		if (orcamentos.size() > 0)
+			return new OrcamentoLista(orcamentos);
+		
+		return new OrcamentoLista();
 	}
 
+	private InvestimentoLista obterInvestimentosBD(Conexao conexao) throws SQLException {
+		List<Investimento> investimentos = new InvestimentoDAO(conexao.getConnection()).lista();
+		
+		if (investimentos.size() > 0)
+			return new InvestimentoLista(investimentos);
+		
+		return new InvestimentoLista();
+	}
+	
 	private static void alterarLookAndFell(String lookAndFeel) {
 		for (var look : UIManager.getInstalledLookAndFeels()) {
 			if (look.getName().equalsIgnoreCase(lookAndFeel)) {
@@ -79,109 +124,106 @@ public class PlanejamentoFinanceiro {
 	}
 	
 	public static boolean validarRendaMensal(Line linha) {
-		if (linha.quantityOfData() != Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_RECEITA)
+		if (linha.quantityOfData() != QUANTIDADE_COLUNAS_ARQUIVO_RECEITA)
 			return false;
 		
-		if (linha.getData(Arquivo.COLUNA_TIPO) == null)
+		if (linha.getData(COLUNA_TIPO) == null)
 			return false;
 		
-		if (!new ValidacaoData().valida(linha.getData(Arquivo.COLUNA_DATA)))
+		if (!new ValidacaoData().valida(linha.getData(COLUNA_DATA)))
 			return false;
 		
-		if (converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_RECEITA)) == null)
+		if (converterNumeroReal(linha.getData(COLUNA_VALOR_RECEITA)) == null)
 			return false;
 		
 		return true;
 	}
 	
 	public static boolean validarDespesa(Line linha) {
-		if (!new ValidacaoData().valida(linha.getData(Arquivo.COLUNA_DATA_DESPESA)))
+		if (!new ValidacaoData().valida(linha.getData(COLUNA_DATA_DESPESA)))
 			return false;
 
-		if (!new ValidacaoData().valida(linha.getData(Arquivo.COLUNA_DIA_PAGAMENTO), ValidacaoData.REGEX_DATA_DIA_MES))
+		if (!new ValidacaoData().valida(linha.getData(COLUNA_DIA_PAGAMENTO), ValidacaoData.DATA_DIA_MES))
 			return false;
 
-		if (!new ValidacaoFormaPagamento().valida(linha.getData(Arquivo.COLUNA_FORMA_PAGAMENTO)))
+		if (!new ValidacaoFormaPagamento().valida(linha.getData(COLUNA_FORMA_PAGAMENTO)))
 			return false;
 
-		if (linha.getData(Arquivo.COLUNA_DESCRICAO) == null || linha.getData(Arquivo.COLUNA_CATEGORIA) == null)
+		if (linha.getData(COLUNA_DESCRICAO) == null || linha.getData(COLUNA_CATEGORIA) == null)
 			return false;
 
-		if (converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_DESPESA)) == null)
+		if (converterNumeroReal(linha.getData(COLUNA_VALOR_DESPESA)) == null)
 			return false;
 		
-		if (linha.quantityOfData() == Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_DESPESA)
-			if (!linha.getData(Arquivo.COLUNA_SITUACAO).equalsIgnoreCase("Paga"))
+		if (linha.quantityOfData() == QUANTIDADE_COLUNAS_ARQUIVO_DESPESA)
+			if (!linha.getData(COLUNA_SITUACAO).equalsIgnoreCase("Paga"))
 				return false;
 		
 		return true;
 	}
 	
 	public static boolean validarInvestimento(Line linha) {
-		if (linha.quantityOfData() != Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_INVESTIMENTO)
+		if (linha.quantityOfData() != QUANTIDADE_COLUNAS_ARQUIVO_INVESTIMENTO)
 			return false;
 		
-		if (linha.getData(Arquivo.COLUNA_OBJETIVO) == null || linha.getData(Arquivo.COLUNA_ESTRATEGIA) == null)
+		if (linha.getData(COLUNA_OBJETIVO) == null || linha.getData(COLUNA_ESTRATEGIA) == null)
 			return false;
 		
-		if (linha.getData(Arquivo.COLUNA_NOME) == null)
+		if (linha.getData(COLUNA_NOME) == null)
 			return false;
 		
-		if (converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_INVESTIDO)) == null || 
-			converterNumeroReal(linha.getData(Arquivo.COLUNA_POSICAO)) == null)
+		if (converterNumeroReal(linha.getData(COLUNA_VALOR_INVESTIDO)) == null || 
+			converterNumeroReal(linha.getData(COLUNA_POSICAO)) == null)
 			return false;
 
-		if(converterNumeroReal(linha.getData(Arquivo.COLUNA_RENDIMENTO_BRUTO)) == null || 
-		   converterNumeroReal(linha.getData(Arquivo.COLUNA_RENTABILIDADE)) == null)
+		if(converterNumeroReal(linha.getData(COLUNA_RENDIMENTO_BRUTO)) == null || 
+		   converterNumeroReal(linha.getData(COLUNA_RENTABILIDADE)) == null)
 			return false;
 		
-		if (!new ValidacaoData().valida(linha.getData(Arquivo.COLUNA_VENCIMENTO)))
+		if (!new ValidacaoData().valida(linha.getData(COLUNA_VENCIMENTO)))
 			return false;
 		
 		return true;
 	}
 	
-	public static Float converterNumeroReal(String numeroString) {
+	public static Double converterNumeroReal(String numeroString) {
 		try {
-			return Float.parseFloat(numeroString.replace(".", "").replace(",", ".").replace("%", "").replace("RS ", ""));
+			return Double.parseDouble(numeroString.replace(".", "").replace(",", ".").replace("%", "").replace("RS ", ""));
 		} catch (NullPointerException | NumberFormatException exception) {
 			return null;
 		}
 	}
 	
-	public static Orcamento criarOrcamento(Line linha) {
-		return new Orcamento(Short.parseShort(String.valueOf(MonthDay.parse(linha.getData(Arquivo.COLUNA_DIA_PAGAMENTO), 
-																			DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_DIA_MES)).getMonthValue())),
-											   ValidacaoData.formatarData(linha.getData(Arquivo.COLUNA_DATA_DESPESA), ValidacaoData.REGEX_DATA_COMPLETA), 
-											   ValidacaoData.formatarMesAno(linha.getData(Arquivo.COLUNA_DIA_PAGAMENTO), ValidacaoData.REGEX_DATA_DIA_MES), 
-											   converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_DESPESA)), criarDespesa(linha), criarFormaPagamento(linha), 
-											   linha.quantityOfData() == Arquivo.QUANTIDADE_COLUNAS_ARQUIVO_DESPESA ? true : false);
+	public static Orcamento criarOrcamento(short mesAno, LocalDate dataDespesa, MonthDay dataPagamento, Double valorDespesa,
+																	    Despesa despesa, FormaPagamento formaPagamento, boolean situacao) {
+		return new Orcamento(mesAno, despesa, dataDespesa, dataPagamento, formaPagamento, valorDespesa, situacao);
 	}
 
-	public static FormaPagamento criarFormaPagamento(Line linha) {
-		return new FormaPagamento(ValidacaoFormaPagamento.descricaoFormaPagamento(linha.getData(Arquivo.COLUNA_FORMA_PAGAMENTO)));
+	public static FormaPagamento criarFormaPagamento(String descricao) {
+		return new FormaPagamento(descricao);
 	}
 
-	public static Despesa criarDespesa(Line linha) {
-		return new Despesa(linha.getData(Arquivo.COLUNA_DESCRICAO), criarCategoria(linha));
+	public static Despesa criarDespesa(String descricao, Categoria categoria) {
+		return new Despesa(descricao, categoria);
 	}
 
-	public static Categoria criarCategoria(Line linha) {
-		return new Categoria(linha.getData(Arquivo.COLUNA_CATEGORIA));
+	public static Categoria criarCategoria(String descricao) {
+		return new Categoria(descricao);
 	}
 
-	public static Investimento criarInvestimento(Line linha) {
-		return new Investimento(linha.getData(Arquivo.COLUNA_OBJETIVO), linha.getData(Arquivo.COLUNA_ESTRATEGIA), 
-												  linha.getData(Arquivo.COLUNA_NOME), converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_INVESTIDO)) , 
-												  converterNumeroReal(linha.getData(Arquivo.COLUNA_POSICAO)), 
-												  converterNumeroReal(linha.getData(Arquivo.COLUNA_RENDIMENTO_BRUTO)), 
-												  converterNumeroReal(linha.getData(Arquivo.COLUNA_RENTABILIDADE)), 
-												  ValidacaoData.formatarData(linha.getData(Arquivo.COLUNA_VENCIMENTO), ValidacaoData.REGEX_DATA_COMPLETA));
+	public static Investimento criarInvestimento(String objetivo, String estrategia, String nome, Double valorInvestido, Double posicao,
+																			   Double rendimentoBruto, Double rentabilidade, LocalDate vencimento) {
+		return new Investimento(objetivo, estrategia, nome, valorInvestido, posicao, rendimentoBruto, rentabilidade, vencimento);
 	}
 
-	public static RendaMensal criarRenda(Line linha) {
-		return new RendaMensal(linha.getData(Arquivo.COLUNA_TIPO), 
-												  ValidacaoData.formatarData(linha.getData(Arquivo.COLUNA_DATA), ValidacaoData.REGEX_DATA_COMPLETA), 
-												  converterNumeroReal(linha.getData(Arquivo.COLUNA_VALOR_RECEITA)));
+	public static RendaMensal criarRendaMensal(String descricao, LocalDate data, Double valor) {
+		return new RendaMensal(descricao, data, valor);
+	}
+	
+	public static Renda criarRenda(Integer codigo, String descricao) {
+		Renda renda = new RendaMensal(descricao);
+		renda.setCodigo(codigo);
+		
+		return renda;
 	}
 }

@@ -63,7 +63,7 @@ public class OrcamentoLista implements DadosLista<Orcamento>, Iterable<Orcamento
 
 	private int pesquisarValor(String stringPesquisada) {
 		try {
-			Float valor = Float.parseFloat(stringPesquisada);
+			Double valor = Double.parseDouble(stringPesquisada);
 			
 			for (int indice = 0; indice < tamanhoLista(); indice++)
 				if (obter(indice).getValor() == valor)
@@ -88,7 +88,7 @@ public class OrcamentoLista implements DadosLista<Orcamento>, Iterable<Orcamento
 		LocalDate localDate;
 		
 		if (new ValidacaoData().valida(stringPesquisada)) {
-			localDate = LocalDate.parse(stringPesquisada, DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_COMPLETA));
+			localDate = LocalDate.parse(stringPesquisada, DateTimeFormatter.ofPattern(ValidacaoData.DATA_COMPLETA));
 			
 			for (int indice = 0; indice < tamanhoLista(); indice++)
 				if (localDate.isEqual(obter(indice).getDataDespesa()))

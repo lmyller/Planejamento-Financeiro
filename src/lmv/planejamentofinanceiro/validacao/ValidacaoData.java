@@ -9,21 +9,21 @@ import lmv.planejamentofinanceiro.interfaces.Validacao;
 
 public class ValidacaoData implements Validacao<String> {
 
-	public static final String REGEX_DATA_COMPLETA = "dd/MM/yyyy",
-											REGEX_DATA_DIA_MES = "dd/MM",
+	public static final String DATA_COMPLETA = "dd/MM/yyyy",
+											DATA_DIA_MES = "dd/MM",
 											DATA_INVALIDA = "Data inválida!";
 	
 	@Override
 	public boolean valida(String validar) {
-		return valida(validar, REGEX_DATA_COMPLETA);
+		return valida(validar, DATA_COMPLETA);
 	}
 
 	@Override
 	public boolean valida(String validar, String regex) {
-		if (regex.equalsIgnoreCase(REGEX_DATA_COMPLETA)) 
+		if (regex.equalsIgnoreCase(DATA_COMPLETA)) 
 			return validaData(validar, regex);
 			
-		if (regex.equalsIgnoreCase(REGEX_DATA_DIA_MES))
+		if (regex.equalsIgnoreCase(DATA_DIA_MES))
 			return validaDiaMes(validar, regex);
 		
 		return false;

@@ -12,13 +12,13 @@ import lmv.planejamentofinanceiro.validacao.ValidacaoData;
 public class Investimento implements Tolist<Investimento> {
 	private Integer codigo;
 	private String objetivo, nome, estrategia;
-	private Float valorInvestido, posicao, rendimentoBruto, rentabilidade;
+	private Double valorInvestido, posicao, rendimentoBruto, rentabilidade;
 	private LocalDate vencimento;
 	
 	public Investimento() { }
 
-	public Investimento(String objetivo, String nome, String estrategia, Float valorInvestido,
-			Float posicao, Float rendimentoBruto, Float rentabilidade, LocalDate vencimento) {
+	public Investimento(String objetivo, String estrategia, String nome, Double valorInvestido,
+			Double posicao, Double rendimentoBruto, Double rentabilidade, LocalDate vencimento) {
 		this.objetivo = objetivo;
 		this.nome = nome;
 		this.estrategia = estrategia;
@@ -61,35 +61,35 @@ public class Investimento implements Tolist<Investimento> {
 		this.estrategia = estrategia;
 	}
 
-	public Float getValorInvestido() {
+	public Double getValorInvestido() {
 		return valorInvestido;
 	}
 
-	public void setValorInvestido(Float valorInvestido) {
+	public void setValorInvestido(Double valorInvestido) {
 		this.valorInvestido = valorInvestido;
 	}
 
-	public Float getPosicao() {
+	public Double getPosicao() {
 		return posicao;
 	}
 
-	public void setPosicao(Float posicao) {
+	public void setPosicao(Double posicao) {
 		this.posicao = posicao;
 	}
 
-	public Float getRendimentoBruto() {
+	public Double getRendimentoBruto() {
 		return rendimentoBruto;
 	}
 
-	public void setRendimentoBruto(Float rendimentoBruto) {
+	public void setRendimentoBruto(Double rendimentoBruto) {
 		this.rendimentoBruto = rendimentoBruto;
 	}
 
-	public Float getRentabilidade() {
+	public Double getRentabilidade() {
 		return rentabilidade;
 	}
 
-	public void setRentabilidade(Float rentabilidade) {
+	public void setRentabilidade(Double rentabilidade) {
 		this.rentabilidade = rentabilidade;
 	}
 
@@ -116,6 +116,6 @@ public class Investimento implements Tolist<Investimento> {
 		
 		return new Object[] {getObjetivo(), getEstrategia(), getNome(), formatPreco.format(getValorInvestido()), formatPreco.format(posicao), 
 										   formatPreco.format(rendimentoBruto), formatPercentual.format(getRentabilidade()), 
-										   getVencimento().format(DateTimeFormatter.ofPattern(ValidacaoData.REGEX_DATA_COMPLETA))};
+										   getVencimento().format(DateTimeFormatter.ofPattern(ValidacaoData.DATA_COMPLETA))};
 	}
 }

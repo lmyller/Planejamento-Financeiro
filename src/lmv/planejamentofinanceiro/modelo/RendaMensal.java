@@ -4,11 +4,15 @@ import java.time.LocalDate;
 
 public class RendaMensal extends Renda{
 	private LocalDate data;
-	private Float valor;
+	private Double valor;
 	
 	public RendaMensal() {}
+	
+	public RendaMensal(String descricao) {
+		super(descricao);
+	}
 
-	public RendaMensal(String descricao, LocalDate data, Float valor) {
+	public RendaMensal(String descricao, LocalDate data, Double valor) {
 		super(descricao);
 		this.data = data;
 		this.valor = valor;
@@ -22,11 +26,11 @@ public class RendaMensal extends Renda{
 		this.data = data;
 	}
 
-	public Float getValor() {
+	public Double getValor() {
 		return valor;
 	}
 
-	public void setValor(Float valor) {
+	public void setValor(Double valor) {
 		this.valor = valor;
 	}
 }
